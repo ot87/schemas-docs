@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/SchemaForm/SchemaFormItems/SchemaFormItems.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/SchemaForm/SchemaFormItems/SchemaFormItems.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from 'react';
+import { FieldArray } from 'react-final-form-arrays';
+
+import css from './SchemaFormItems.module.css';
+import Item from '../../Common/Item/Item';
+import FormField from '../../Common/FormField/FormField';
+
+/**
+ * Function with validation rule.
+ * @callback ValidationFunction
+ * @param {string} value - Value to validate.
+ * @returns {boolean} - Indicates whether value is valid.
+ */
+
+/**
+ * Renders Schema's items in the table-like style with the help of the [FieldArray]{@link https://github.com/final-form/react-final-form-arrays#fieldarray--reactcomponenttypefieldarrayprops} and [FormField]{@link FormField}.
+ * @param {Object}             props
+ * @param {Object[]}           props.initItems          - Initial values of the schema's items.
+ * @param {number}             props.initItems.id       - Initial item id.
+ * @param {string}             props.initItems.name     - Initial item name.
+ * @param {string}             props.initItems.quantity - Initial item quantity.
+ * @param {string}             props.initItems.time     - Initial item time.
+ * @param {ValidationFunction} props.onValidate         - Field validation function.
+ * @param {boolean}            props.isRemoveClicked    - Indicates whether Remove button is clicked.
+ * @param {number[]}           props.itemsIdsToRemove   - Array of items ids to remove from the form.
+ * @param {function}           props.handleRemoveOnItemsRowClick - On item row click function.
+ */
+const SchemaFormItems = ({
+    initItems,
+    onValidate,
+    isRemoveClicked,
+    itemsIdsToRemove,
+    handleRemoveOnItemsRowClick
+}) => (
+    &lt;FieldArray
+        name='items'
+        initialValue={initItems}
+        render={({ fields }) => fields.map((name, index) => {
+            let rowCss = css.items;
+
+            if (isRemoveClicked) {
+                rowCss += ' ' + css.remove;
+                if (itemsIdsToRemove.indexOf(index) !== -1) {
+                    rowCss += ' ' + css.clickedItemsRow;
+                }
+            }
+
+            return (
+                &lt;div
+                    key={index}
+                    role="row"
+                    onClick={() => isRemoveClicked &amp;&amp; handleRemoveOnItemsRowClick(index)}
+                    className={rowCss}
+                >
+                    &lt;Item>
+                        &lt;FormField
+                            name={`${name}.name`}
+                            type='text'
+                            tag='input'
+                            validate={onValidate}
+                            disabled={isRemoveClicked}
+                            placeholder='Name'
+                        />
+                    &lt;/Item>
+                    &lt;Item>
+                        &lt;FormField
+                            name={`${name}.quantity`}
+                            type='text'
+                            tag='input'
+                            validate={onValidate}
+                            disabled={isRemoveClicked}
+                            placeholder='Quantity'
+                        />
+                    &lt;/Item>
+                    &lt;Item>
+                        &lt;FormField
+                            name={`${name}.time`}
+                            type='text'
+                            tag='input'
+                            disabled={isRemoveClicked}
+                            placeholder='Time'
+                        />
+                    &lt;/Item>
+                &lt;/div>
+            );
+        })}
+    />
+);
+
+export default SchemaFormItems;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Card">Card</a></li><li><a href="global.html#CardWithButtons">CardWithButtons</a></li><li><a href="global.html#Content">Content</a></li><li><a href="global.html#FormField">FormField</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Item">Item</a></li><li><a href="global.html#Plate">Plate</a></li><li><a href="global.html#Schema">Schema</a></li><li><a href="global.html#SchemaFormButtons">SchemaFormButtons</a></li><li><a href="global.html#SchemaFormContainer">SchemaFormContainer</a></li><li><a href="global.html#SchemaFormItems">SchemaFormItems</a></li><li><a href="global.html#SchemaFormItemsControls">SchemaFormItemsControls</a></li><li><a href="global.html#SchemasBoard">SchemasBoard</a></li><li><a href="global.html#SchemasList">SchemasList</a></li><li><a href="global.html#SchemasPanel">SchemasPanel</a></li><li><a href="global.html#UiModes">UiModes</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Wed Oct 07 2020 22:43:35 GMT+0300 (GMT+03:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

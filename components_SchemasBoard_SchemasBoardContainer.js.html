@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/SchemasBoard/SchemasBoardContainer.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/SchemasBoard/SchemasBoardContainer.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from 'react';
+import { connect } from 'react-redux';
+
+import css from './SchemasBoard.module.css';
+import Card from '../Common/Card/Card';
+import CardWithButtons from '../Common/Card/CardWithButtons';
+import Schema from '../Schema/Schema';
+import SchemaFormContainer from '../SchemaForm/SchemaFormContainer';
+import { addSchema, updateSchema, deleteSchema } from '../../redux/reducers/schemas';
+import { selectSchema, setMode, UiModes } from '../../redux/reducers/ui';
+
+/**
+ * Callback for events handling.
+ * @callback EventHandlerFunction
+ */
+
+/** 
+ * Component to display a list of all Schemas by [Card]{@link Card} or [CardWithButtons]{@link CardWithButtons} or a single selected [Schema]{@link Schema} or [SchemaFormContainer]{@link SchemaFormContainer}. The displayed content depends on value of the selectedSchemaId and mode parameters.
+ * @param {Object}               props
+ * @param {Object[]}             props.schemas                - The data of the all schemas from the Redux State.
+ * @param {number}               props.schemas.id             - Schema id.
+ * @param {string}               props.schemas.name           - Schema name.
+ * @param {string}               [props.schemas.description]  - Schema description.
+ * @param {Object[]}             props.schemas.items          - Array of schema items.
+ * @param {number}               props.schemas.items.id       - Schema item id.
+ * @param {string}               props.schemas.items.name     - Schema item name.
+ * @param {string}               props.schemas.items.quantity - Schema item quantity.
+ * @param {string}               props.schemas.items.time     - Schema item time.
+ *
+ * @param {number|null}          props.selectedSchemaId       - The id of the selected schema from the Redux State.
+ * @param {string}               props.mode                   - The current ui mode from the Redux State.
+ * @param {EventHandlerFunction} props.addSchema              - A function to add schema.
+ * @param {EventHandlerFunction} props.updateSchema           - A function to update schema.
+ * @param {function}             props.deleteSchema           - A function to delete schema.
+ * @param {function}             props.selectSchema           - A function to select schema.
+ * @param {function}             props.setMode                - A function to set current ui mode.
+ */
+const SchemasBoard = ({
+    schemas,
+    selectedSchemaId,
+    mode,
+    addSchema,
+    updateSchema,
+    deleteSchema,
+    selectSchema,
+    setMode
+}) => {
+    const isAdd    = mode === UiModes.ADD;
+    const isEdit   = mode === UiModes.EDIT;
+    const isDelete = mode === UiModes.DELETE;
+
+    let schemasBoard;
+
+    if (selectedSchemaId) {
+        if (isEdit) {
+            schemasBoard = &lt;SchemaFormContainer
+                schema={schemas.find(schema => schema.id === selectedSchemaId)}
+                onSubmit={updateSchema}
+                onCancel={() => selectSchema(null)}
+            />;
+        } else if (isDelete) {
+            schemasBoard = &lt;div className={css.board}>
+                {schemas.map((schema) => (
+                    &lt;CardWithButtons
+                        key={schema.id}
+                        name={schema.name}
+                        content={schema.items.map((item) => &lt;div key={item.id}>{item.name}&lt;/div>)}
+                        colorTheme='red'
+                        cardIsClicked={schema.id === selectedSchemaId}
+                        onClick={() => selectSchema(schema.id)}
+                        buttons={({
+                            first: {
+                                text: 'Delete',
+                                onClick: () => deleteSchema(schema.id)
+                            },
+                            second: {
+                                text: 'Cancel',
+                                onClick: () => selectSchema(null)
+                            }
+                        })}
+                    />
+                ))}
+            &lt;/div>;
+        } else {
+            schemasBoard = &lt;Schema
+                schema={schemas.find(schema => schema.id === selectedSchemaId)}
+            />;
+        }
+    } else {
+        if (isAdd) {
+            schemasBoard = &lt;SchemaFormContainer
+                schema={{items: []}}
+                onSubmit={addSchema}
+                onCancel={() => setMode(UiModes.SHOW)}
+            />;
+        } else {
+            let cardColorTheme = null;
+
+            if (isEdit) {
+                cardColorTheme = 'gold';
+            }
+            if (isDelete) {
+                cardColorTheme = 'red';
+            }
+
+            schemasBoard = &lt;div className={css.board}>
+                {schemas.map((schema) => (
+                    &lt;Card
+                        key={schema.id}
+                        name={schema.name}
+                        content={schema.items.map((item) => &lt;div key={item.id}>{item.name}&lt;/div>)}
+                        colorTheme={cardColorTheme}
+                        onClick={() => selectSchema(schema.id)}
+                    />
+                ))}
+            &lt;/div>;
+        }
+    }
+
+    return schemasBoard;
+}
+
+export default connect(
+    (state) => ({
+        schemas: state.schemas,
+        selectedSchemaId: state.ui.selectedSchemaId,
+        mode: state.ui.mode
+    }),
+    { addSchema, updateSchema, deleteSchema, selectSchema, setMode }
+)(SchemasBoard);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Card">Card</a></li><li><a href="global.html#CardWithButtons">CardWithButtons</a></li><li><a href="global.html#Content">Content</a></li><li><a href="global.html#FormField">FormField</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Item">Item</a></li><li><a href="global.html#Plate">Plate</a></li><li><a href="global.html#Schema">Schema</a></li><li><a href="global.html#SchemaFormButtons">SchemaFormButtons</a></li><li><a href="global.html#SchemaFormContainer">SchemaFormContainer</a></li><li><a href="global.html#SchemaFormItems">SchemaFormItems</a></li><li><a href="global.html#SchemaFormItemsControls">SchemaFormItemsControls</a></li><li><a href="global.html#SchemasBoard">SchemasBoard</a></li><li><a href="global.html#SchemasList">SchemasList</a></li><li><a href="global.html#SchemasPanel">SchemasPanel</a></li><li><a href="global.html#UiModes">UiModes</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Wed Oct 07 2020 22:43:35 GMT+0300 (GMT+03:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

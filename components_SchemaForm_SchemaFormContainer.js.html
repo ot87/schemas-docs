@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/SchemaForm/SchemaFormContainer.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/SchemaForm/SchemaFormContainer.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useState } from 'react';
+import { Form } from 'react-final-form';
+import arrayMutators from 'final-form-arrays';
+
+import css from './SchemaForm.module.css';
+import FormField from '../Common/FormField/FormField';
+import SchemaFormItemsControls from './SchemaFormItemsControls/SchemaFormItemsControls';
+import SchemaFormItems from './SchemaFormItems/SchemaFormItems';
+import SchemaFormButtons from './SchemaFormButtons/SchemaFormButtons';
+
+/**
+ * Callback for events handling.
+ * @callback EventHandlerFunction
+ */
+
+/**
+ * Form container to add or edit schemas. [React Final Form]{@link https://final-form.org/react} library is used.
+ * @param {Object}               props
+ * @param {Object}               props.schema                - Initial data for the form.
+ * @param {number}               [props.schema.id]           - Schema id.
+ * @param {string}               [props.schema.name]         - Schema name.
+ * @param {string}               [props.schema.description]  - Schema description.
+ * @param {Object[]}             props.schema.items          - Array of schema items.
+ * @param {number}               props.schema.items.id       - Schema item id.
+ * @param {string}               props.schema.items.name     - Schema item name.
+ * @param {string}               props.schema.items.quantity - Schema item quantity.
+ * @param {string}               [props.schema.items.time]   - Schema item time.
+ * @param {EventHandlerFunction} props.onSubmit              - On click function for Submit Plate.
+ * @param {EventHandlerFunction} props.onCancel              - On click function for Cancel Plate.
+ */
+const SchemaFormContainer = ({ schema, onSubmit, onCancel }) => {
+    const [isRemoveClicked, setIsRemoveClicked] = useState(false);
+    const [itemsIdsToRemove, setItemsIdsToRemove] = useState([]);
+    const [isRemoveAllClicked, setIsRemoveAllClicked] = useState(false);
+
+    const addOnClick = (push, items) => {
+        push(
+            'items',
+            {
+                id: items.length ?
+                    items[items.length - 1].id + 1 :
+                    1,
+                name: '', quantity: '', time: ''
+            }
+        );
+    };
+
+    const removeOnClick = (removeBatch) => {
+        if (isRemoveClicked &amp;&amp; itemsIdsToRemove.length) {
+            removeBatch('items', itemsIdsToRemove);
+            setItemsIdsToRemove([]);
+            setIsRemoveAllClicked(false);
+        }
+        setIsRemoveClicked(!isRemoveClicked);
+    };
+
+    const removeAllOnClick = (items) => {
+        if (isRemoveAllClicked) {
+            setItemsIdsToRemove([]);
+        } else {
+            setItemsIdsToRemove([...items.keys()]);
+        }
+        setIsRemoveAllClicked(!isRemoveAllClicked);
+    };
+
+    const handleRemoveOnItemsRowClick = (items) => (index) => {
+        let newItemsIdsToRemove = [...itemsIdsToRemove];
+
+        if (itemsIdsToRemove.indexOf(index) !== -1) {
+            newItemsIdsToRemove = itemsIdsToRemove.filter((id) => id !== index);
+        } else {
+            newItemsIdsToRemove = itemsIdsToRemove.concat(index);
+        }
+
+        setItemsIdsToRemove(newItemsIdsToRemove);
+        setIsRemoveAllClicked(items.length === newItemsIdsToRemove.length);
+    };
+
+    const required = (value) => !value;
+
+    return (
+        &lt;Form
+            onSubmit={onSubmit}
+            initialValues={schema}
+            mutators={{...arrayMutators}}
+            render={({
+                handleSubmit,
+                form: { mutators: { push, removeBatch }, submit, reset },
+                submitting,
+                dirty,
+                initialValues,
+                values
+            }) => (
+                &lt;div className={css.schemaForm}>
+                    &lt;SchemaFormItemsControls
+                        isRemoveClicked={isRemoveClicked}
+                        showRemove={!!values.items.length}
+                        isRemoveAllClicked={isRemoveAllClicked}
+                        addOnClick={() => addOnClick(push, values.items)}
+                        removeOnClick={() => removeOnClick(removeBatch)}
+                        removeAllOnClick={() => removeAllOnClick(values.items)}
+                    />
+                    &lt;form onSubmit={handleSubmit}>
+                        &lt;div role="table" className={css.schema}>
+                            &lt;FormField
+                                name='name'
+                                type='text'
+                                tag='input'
+                                validate={required}
+                                disabled={isRemoveClicked}
+                            />
+                            &lt;FormField
+                                name='description'
+                                type='text'
+                                tag='textarea'
+                                disabled={isRemoveClicked}
+                            />
+                            &lt;SchemaFormItems
+                                initItems={initialValues.items}
+                                onValidate={required}
+                                isRemoveClicked={isRemoveClicked}
+                                itemsIdsToRemove={itemsIdsToRemove}
+                                handleRemoveOnItemsRowClick={handleRemoveOnItemsRowClick(values.items)}
+                            />
+                            &lt;SchemaFormButtons
+                                submit={({
+                                    isDisabled: isRemoveClicked || submitting,
+                                    onClick: submit
+                                })}
+                                reset={({
+                                    isDisabled: isRemoveClicked || submitting || !dirty,
+                                    onClick: reset
+                                })}
+                                cancel={({
+                                    isDisabled: isRemoveClicked || submitting,
+                                    onClick: onCancel
+                                })}
+                            />
+                        &lt;/div>
+                    &lt;/form>
+                &lt;/div>
+            )}
+        />
+    );
+};
+
+export default SchemaFormContainer;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Card">Card</a></li><li><a href="global.html#CardWithButtons">CardWithButtons</a></li><li><a href="global.html#Content">Content</a></li><li><a href="global.html#FormField">FormField</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Item">Item</a></li><li><a href="global.html#Plate">Plate</a></li><li><a href="global.html#Schema">Schema</a></li><li><a href="global.html#SchemaFormButtons">SchemaFormButtons</a></li><li><a href="global.html#SchemaFormContainer">SchemaFormContainer</a></li><li><a href="global.html#SchemaFormItems">SchemaFormItems</a></li><li><a href="global.html#SchemaFormItemsControls">SchemaFormItemsControls</a></li><li><a href="global.html#SchemasBoard">SchemasBoard</a></li><li><a href="global.html#SchemasList">SchemasList</a></li><li><a href="global.html#SchemasPanel">SchemasPanel</a></li><li><a href="global.html#UiModes">UiModes</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Wed Oct 07 2020 22:43:35 GMT+0300 (GMT+03:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
